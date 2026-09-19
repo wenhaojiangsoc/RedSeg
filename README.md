@@ -34,8 +34,22 @@ RedSeg/
     ├── 2_mechanism/           <- mediation: composition, groups, amenity mix, income, Place Pulse
     ├── 3_heterogeneity/       <- establishment types and catchment bins
     ├── 4_appendix/            <- Appendices A-I (robustness, EI, Oster, diversity, balanced borders)
-    └── 5_figures/             <- Figures 1-5 (each reads results/ from the stages above)
+    ├── 5_figures/             <- Figures 1-5 (each reads results/ from the stages above)
+    └── 6_fractional_measure/  <- the paper's FINAL estimates: every analysis re-run with
+                                  fractional (proportional) visitor-race attribution (see below)
 ```
+
+> **Which numbers are in the paper?** The published estimates use **fractional attribution**:
+> each visit contributes its home block group's full ACS racial distribution, exactly as the
+> paper's Eq. 1 defines. Stages 0-5 build the pipeline and the largest-group (one-hot) variant
+> retained as a robustness row in Appendix B; `6_fractional_measure/` re-runs every estimator
+> on the fractional outcome (`ei_bounds_seg_frac.R` output, plus a fractional re-stream of the
+> excluding-local-residents and diversity measures in `holc_nonlocal_seg_FRAC.R`) and produces
+> the numbers, tables, and figures that appear in the manuscript. The `*_FRAC.R` scripts are
+> one-line path variants of the stage-1-to-4 originals (via the drop-in file
+> `data/poi_seg_frac_as_rw.rds`); `holc_frac_core.R`, `holc_frac_batch.R`, and
+> `holc_frac_figprep.R` carry the headline DiDs, the mechanism/heterogeneity batch, and the
+> figure regeneration.
 
 All R scripts assume the **working directory is the project root** (the directory holding
 `data/` and `results/`; scripts create `results/` outputs by relative path). The five figure
