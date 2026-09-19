@@ -123,6 +123,8 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 | `holc_lowprop_poi.R` | F (Table F2): balanced-boundary second identification (+0.009, p = 0.04; less-balanced +0.020). |
 | `holc_lowprop_pretrend.R` | F (Table F1): flat pre-map trajectories on balanced boundaries. |
 | `holc_pretrend.R` | Methods claim: reweighting balances pre-map gaps in every census (1910/1920/1930). |
+| `holc_nonlocal_hetero.R` | A (Table A2): heterogeneity with local residents excluded, 12 types + 6 catchment bins; also validates the 12-type mapping against Table G1. **Reconstructed** (see below). |
+| `holc_bench.R` | C (Table C1): boundary DiD on 2010 income, rent, and homeownership vs the segregation effect, in % of within-boundary SD. **Reconstructed** (see below). |
 
 ### Stage 5 — figures (`code/5_figures/`)
 
@@ -146,14 +148,20 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 - **Tables** are typeset by hand in the paper's LaTeX from each script's console output and
   saved `results/*.rds`; scripts print the exact numbers they contribute.
 
-## Known gaps
+## Reconstructed scripts
 
-Two appendix tables — **Table C1** (benchmarking the boundary effect against 2010 income, rent,
-and homeownership) and **Table A2** (heterogeneity with local residents excluded) — were
-produced with session code that was not preserved. All of their ingredients are in this package
-(the AHM 2010 outcomes, `holc_nonlocal_seg.R`, and the Stage 3 heterogeneity estimators), and
-reconstructed scripts will be added in a future commit after being verified to reproduce the
-published numbers exactly.
+The code that originally produced **Table A2** (heterogeneity excluding local residents) and
+**Table C1** (economic benchmarking) was not preserved; `holc_nonlocal_hetero.R` and
+`holc_bench.R` reconstruct both from the package's own machinery and were verified against the
+published tables. **Table A2** reproduces exactly (to the printed fourth decimal) for all six
+catchment bins, including their km labels, and for eight of twelve establishment types; the
+remaining four types agree within 0.0006 (the original assignment of a few marginal SafeGraph
+categories to types is not recoverable, so the mapping follows Table G1's printed
+descriptions). **Table C1** reproduces the segregation row exactly (+0.0050 over 100 draws)
+and the income row at published rounding (−$1,070 → −$1,100, n.s.); homeownership matches to
+0.1 pp (−1.29 vs −1.2, p = .015 vs p < .01), while the rent estimate is smaller here (−0.8%
+vs −1.0%) and short of marginal significance — the original's exact rent transform and SD
+weighting could not be recovered. Each script's header records this verification.
 
 ## Contact
 
