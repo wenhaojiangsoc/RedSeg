@@ -89,7 +89,7 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 | 0.1 | `extract_flows_2019.py` | Streams raw SafeGraph monthly patterns; writes one `POI x home-CBG x visitors` file per month (US CBGs only). Run once per month directory. | `data/flows_2019/*.csv.gz` |
 | 0.2 | `build_cbg_race_2019.R` | CBG-level race shares, population, and SafeGraph device counts (for post-stratification). | `data/cbg_race_2019.csv` |
 | 0.3 | `pull_cbg_race_frac.R` | Fractional CBG racial composition (ACS B03002) for the ecological-inference appendix. | `data/cbg_race_frac.csv` |
-| 0.4 | `compute_seg_reweighted.R` | Recomputes integration segregation from the raw flows, unweighted (`seg_int_unw`) and with SafeGraph's recommended CBG post-stratification reweighting (`seg_int_rw`). This is the paper's outcome (Appendix I). | `data/poi_seg_reweighted.rds` |
+| 0.4 | `compute_seg_reweighted.R` | Recomputes integration segregation from the raw flows, unweighted (`seg_int_unw`) and with SafeGraph's recommended CBG post-stratification reweighting (`seg_int_rw`). This is the largest-group outcome variant (Appendix B robustness row; Appendix I evaluates the reweighting). | `data/poi_seg_reweighted.rds` |
 | 0.5 | `holc_poi_assign.R` | Point-level assignment of POIs to real B–(C/D) polygon borders within 1/4 mile (Column 5 and the design figure); also saves the full B/C/D point set for the placebo grid. | `data/poi_real_assign.rds`, `data/poi_bcd_pts.rds` |
 | 0.6 | `placepulse_scores.R` | Place Pulse 2.0 composite perceived-quality scores by location (Appendix H). | `data/placepulse_location_scores_us.csv` |
 
@@ -97,11 +97,11 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 
 | Script | Paper exhibit | Notes |
 |---|---|---|
-| `holc_control_check.R` | Col. 1 + in-text 0.049 vs 0.038 | Descriptive C/D gradient, FE-only vs full contemporary controls (income, education, majority race, walkability, Wharton land-use regulation, gentrification), county-clustered. Also the source of the Appendix J zoning/gentrification associations. |
+| `holc_control_check.R` | Col. 1 (0.049 vs 0.038 under largest-group attribution; the published 0.020 vs 0.017 come from `6_fractional_measure/holc_col1_se_FRAC.R`) | Descriptive C/D gradient, FE-only vs full contemporary controls (income, education, majority race, walkability, Wharton land-use regulation, gentrification), county-clustered. Also the source of the Appendix J zoning/gentrification associations. |
 | `holc_cols12_rw.R` | Cols. 1–2 | Descriptive gradient and raw boundary discontinuity on the recomputed, reweighted measure. |
 | `holc_cdb_ipw_rw.R` | Col. 3 | Probit inverse-propensity weighting alternative; 100 draws. |
-| `holc_cdb_ebal_rw.R` | Col. 4 (**main estimate**, +0.0050) | Entropy-balanced boundary DiD, tract-buffer assignment; 100 draws. |
-| `holc_cdb_poi.R`, `holc_col5_poi_pub.R` | Col. 5 (+0.0079) | POI-level assignment (each POI by its own distance to the border): `holc_cdb_poi.R` on the recomputed measures, `holc_col5_poi_pub.R` on the published measure used in the table. |
+| `holc_cdb_ebal_rw.R` | Col. 4 design (+0.0050 largest-group; the published **+0.0024** comes from `6_fractional_measure/holc_frac_core.R`) | Entropy-balanced boundary DiD, tract-buffer assignment; 100 draws. |
+| `holc_cdb_poi.R`, `holc_col5_poi_pub.R` | Col. 5 design (+0.0079 largest-group; the published **+0.0035** comes from `6_fractional_measure/holc_frac_core.R`) | POI-level assignment (each POI by its own distance to the border): `holc_cdb_poi.R` on the recomputed measures, `holc_col5_poi_pub.R` on the published measure used in the table. |
 
 ### Stage 2 — mechanism (`code/2_mechanism/`) — Section "Mechanism", Figure 4
 
