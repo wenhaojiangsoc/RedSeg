@@ -1,0 +1,12 @@
+# data and outputs are never committed (proprietary / large)
+data/*
+!data/README.md
+results/
+figures/
+*.rdata
+*.RData
+*.rds
+*.dta
+*.csv.gz
+.DS_Store
+.Rhistory
