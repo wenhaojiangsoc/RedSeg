@@ -1,6 +1,4 @@
-# RedSeg — Replication package
-
-**The Color of Activity Space: Redlining and the Racial Segregation of Everyday Places**
+# Replication package for The Color of Activity Space
 Wenhao Jiang and Yongjun Zhang. Manuscript under review at *Demography* (revise & resubmit).
 
 This repository contains all analysis code needed to reproduce the tables and figures of the
