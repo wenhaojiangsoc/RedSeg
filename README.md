@@ -35,21 +35,31 @@ RedSeg/
     ├── 3_heterogeneity/       <- establishment types and catchment bins
     ├── 4_appendix/            <- Appendices A-I (robustness, EI, Oster, diversity, balanced borders)
     ├── 5_figures/             <- Figures 1-5 (each reads results/ from the stages above)
-    └── 6_fractional_measure/  <- the paper's FINAL estimates: every analysis re-run with
-                                  fractional (proportional) visitor-race attribution (see below)
+    ├── 6_fractional_measure/  <- fractional (proportional) visitor-race attribution on RAW
+    │                             flows: now the Appendix I robustness comparison (see below)
+    └── 7_corrected_measure/   <- the paper's FINAL estimates: the fractional measure computed
+                                  from POST-STRATIFIED flows (SafeGraph device-panel correction)
 ```
 
-> **Which numbers are in the paper?** The published estimates use **fractional attribution**:
-> each visit contributes its home block group's full ACS racial distribution, exactly as the
-> paper's Eq. 1 defines. Stages 0-5 build the pipeline and the largest-group (one-hot) variant
-> retained as a robustness row in Appendix B; `6_fractional_measure/` re-runs every estimator
-> on the fractional outcome (`ei_bounds_seg_frac.R` output, plus a fractional re-stream of the
-> excluding-local-residents and diversity measures in `holc_nonlocal_seg_FRAC.R`) and produces
-> the numbers, tables, and figures that appear in the manuscript. The `*_FRAC.R` scripts are
-> one-line path variants of the stage-1-to-4 originals (via the drop-in file
-> `data/poi_seg_frac_as_rw.rds`); `holc_frac_core.R`, `holc_frac_batch.R`, and
-> `holc_frac_figprep.R` carry the headline DiDs, the mechanism/heterogeneity batch, and the
-> figure regeneration.
+> **Which numbers are in the paper?** The published estimates use **fractional attribution on
+> post-stratified flows**: each visit contributes its home block group's full ACS racial
+> distribution (the paper's Eq. 1), and each home block group's visits are first reweighted by
+> its census-population-to-device ratio (SafeGraph's recommended device-panel correction, the
+> paper's Data section and Appendix I). `7_corrected_measure/` produces every number, table,
+> and figure in the manuscript: `compute_seg_fraccorr.R` builds the corrected measure (the
+> stage-0 `compute_seg_reweighted.R` machinery fed with `cbg_race_frac_2019.csv`),
+> `make_fraccorr_dropin.R` places it on the analysis scale, `holc_nonlocal_seg_FRACCORR.R`
+> re-streams the excluding-local-residents and diversity measures with the adjustment factors
+> applied in-stream, and the `*_FRACCORR.R` scripts are path variants of the stage-1-to-4
+> originals. `holc_frac_core_CORR.R` (and `_CORR2.R`, which also saves the placebo-side
+> coefficients), `holc_frac_batch_CORR.R`, and `holc_frac_figprep_CORR.R` carry the headline
+> DiDs, the mechanism/heterogeneity batch, and the figure inputs.
+>
+> `6_fractional_measure/` is the same fractional pipeline on the **raw, unweighted** flows: it
+> now reproduces the Appendix I robustness comparison (the two versions correlate at 0.98, with
+> marginally smaller boundary estimates, e.g. +0.0035 vs the reported +0.0036). Stages 0-5
+> build the shared inputs and the largest-group (one-hot) variant retained as a robustness row
+> in Appendix B.
 
 All R scripts assume the **working directory is the project root** (the directory holding
 `data/` and `results/`; scripts create `results/` outputs by relative path). The five figure
@@ -97,11 +107,11 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 
 | Script | Paper exhibit | Notes |
 |---|---|---|
-| `holc_control_check.R` | Col. 1 (0.049 vs 0.038 under largest-group attribution; the published 0.020 vs 0.017 come from `6_fractional_measure/holc_col1_se_FRAC.R`) | Descriptive C/D gradient, FE-only vs full contemporary controls (income, education, majority race, walkability, Wharton land-use regulation, gentrification), county-clustered. Also the source of the Appendix J zoning/gentrification associations. |
+| `holc_control_check.R` | Col. 1 (0.049 vs 0.038 under largest-group attribution; the published 0.025 vs 0.020 come from `7_corrected_measure/holc_col1_se_FRACCORR.R`) | Descriptive C/D gradient, FE-only vs full contemporary controls (income, education, majority race, walkability, Wharton land-use regulation, gentrification), county-clustered. Also the source of the Appendix J zoning/gentrification associations. |
 | `holc_cols12_rw.R` | Cols. 1–2 | Descriptive gradient and raw boundary discontinuity on the recomputed, reweighted measure. |
 | `holc_cdb_ipw_rw.R` | Col. 3 | Probit inverse-propensity weighting alternative; 100 draws. |
-| `holc_cdb_ebal_rw.R` | Col. 4 design (+0.0050 largest-group; the published **+0.0024** comes from `6_fractional_measure/holc_frac_core.R`) | Entropy-balanced boundary DiD, tract-buffer assignment; 100 draws. |
-| `holc_cdb_poi.R`, `holc_col5_poi_pub.R` | Col. 5 design (+0.0079 largest-group; the published **+0.0035** comes from `6_fractional_measure/holc_frac_core.R`) | POI-level assignment (each POI by its own distance to the border): `holc_cdb_poi.R` on the recomputed measures, `holc_col5_poi_pub.R` on the published measure used in the table. |
+| `holc_cdb_ebal_rw.R` | Col. 4 design (+0.0050 largest-group; the published **+0.0025** comes from `7_corrected_measure/holc_frac_core_CORR.R`) | Entropy-balanced boundary DiD, tract-buffer assignment; 100 draws. |
+| `holc_cdb_poi.R`, `holc_col5_poi_pub.R` | Col. 5 design (+0.0079 largest-group; the published **+0.0036** comes from `7_corrected_measure/holc_frac_core_CORR.R`) | POI-level assignment (each POI by its own distance to the border): `holc_cdb_poi.R` on the recomputed measures, `holc_col5_poi_pub.R` on the published measure used in the table. |
 
 ### Stage 2 — mechanism (`code/2_mechanism/`) — Section "Mechanism", Figure 4
 
@@ -148,6 +158,30 @@ stream the ~12 monthly flow files and need ~32 GB RAM; estimator scripts run in 
 | `holc_mediation_groups_fig.R` | Fig. 4 (mechanism) | `results/holc_mediation_groups.rds` |
 | `holc_hetero_fig.R` | Fig. 5 (heterogeneity) | `results/holc_category7.rds`, `results/holc_catch_multi.rds` |
 
+### Stage 7 — corrected measure (`code/7_corrected_measure/`) — the published estimates
+
+Run after stages 0-4. `compute_seg_fraccorr.R` and `make_fraccorr_dropin.R` come first; every
+other script is independent given their outputs.
+
+| Script | Exhibit |
+|---|---|
+| `compute_seg_fraccorr.R` | Builds the corrected measure: fractional composition (`cbg_race_frac_2019.csv`) on post-stratified flows. -> `data/poi_seg_frac_corrected.rds` |
+| `make_fraccorr_dropin.R` | Puts it on the analysis scale (x 5/8, matching `seg_eco`). -> `data/poi_seg_fraccorr_as_rw.rds`, `results/poi_ei_bounds_fraccorr.rds` |
+| `holc_frac_core_CORR.R` (`_CORR2.R` adds the placebo-side coefficients) | Table 1 Cols 4-5 (+0.0025, +0.0036), within-boundary SDs (0.064/0.058 -> 3.9%/6.1%). |
+| `holc_frac_batch_CORR.R` | Table 1 Cols 2-3 inputs, mediation (a=0.020, b=0.061, 44%), amenity mix (1%, p=0.80), 7-type and catchment heterogeneity. |
+| `holc_frac_ipw2CORR.R` | Table 1 Col 3 (IPW +0.0030; 66% of draws significant). |
+| `holc_col1_se_FRACCORR.R`, `holc_cols12_rw_FRACCORR.R` | Table 1 Col 1 (0.0196 controlled / 0.0249 FE-only; 23% of pooled SD) and Col 2 (+0.0030). |
+| `holc_frac_figprep_CORR.R` | Figure 4-5 inputs (`results/holc_mediation_groups_CORR.rds`, `holc_category7_CORR.rds`, `holc_catch_multi_CORR.rds`; promoted to the canonical names read by `5_figures/`). |
+| `holc_appendix_robust_FRACCORR.R` | Appendix A Table A1. |
+| `holc_nonlocal_seg_FRACCORR.R` -> `holc_nonlocal_did_FRACCORR.R`, `holc_nonlocal_hetero_FRACFULLCORR.R` | Appendix A excluding-local-residents results and Table A2 (adjustment factors applied in-stream). |
+| `holc_oster_FRACCORR.R`, `holc_oster_DIVFRACCORR.R` | Appendix D Table D1 (delta* = 2.67/0.47; diversity 0.30/0.17). |
+| `holc_diversity_did_FRACCORR.R` | Appendix E (precise null, 0.0000). |
+| `holc_lowprop_poi_FRACCORR.R` | Appendix F Table F2 (+0.0045 / +0.0049 / +0.0106). |
+| `holc_g1_FRACCORR.R` | Appendix G Table G1 (12-type estimates and counts). |
+| `holc_cdb_med_placepulse_rw_FRACCORR.R` | Appendix H (Place Pulse mediation, 0-2%). |
+| `holc_income_interaction_FRACCORR.R`, `holc_income_intersect_FRACCORR.R` | Income-channel checks (+0.0005 null analog; +0.0023 vs +0.0026; interaction p>0.3). |
+| `holc_zoning_appendix_FRACCORR.R` | Appendix J Table J1 (WRLURI; gentrification coefficients from the factor-level model described in the script header). |
+
 ## Conventions worth knowing
 
 - **Outcome scaling.** Every segregation index is rescaled by `* 5/8` on load so the summed
@@ -173,7 +207,11 @@ descriptions). **Table C1** reproduces the segregation row exactly (+0.0050 over
 and the income row at published rounding (−$1,070 → −$1,100, n.s.); homeownership matches to
 0.1 pp (−1.29 vs −1.2, p = .015 vs p < .01), while the rent estimate is smaller here (−0.8%
 vs −1.0%) and short of marginal significance — the original's exact rent transform and SD
-weighting could not be recovered. Each script's header records this verification.
+weighting could not be recovered. Each script's header records this verification. (Both reconstructions, and the stage-1-4
+verification values quoted above, refer to the largest-group-era tables against which they
+were validated; the published, corrected-fractional versions of Tables A2 and C1 come from
+`7_corrected_measure/holc_nonlocal_hetero_FRACFULLCORR.R` and the corrected core run's
+within-boundary SDs.)
 
 ## Contact
 
